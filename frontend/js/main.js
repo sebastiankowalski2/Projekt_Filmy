@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const loginLink = document.getElementById('login-link')
   const registerLink = document.getElementById('register-link')
   const moviesGrid = document.getElementById('movies-grid')
+  const moviesSection = document.getElementById('movies')
 
   // Pokaż formularz logowania
   loginLink.addEventListener('click', (e) => {
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
     authForms.style.display = 'block'
     loginForm.style.display = 'block'
     registerForm.style.display = 'none'
+    moviesSection.style.display = 'none' // Ukryj sekcję z filmami
   })
 
   // Pokaż formularz rejestracji
@@ -20,6 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     authForms.style.display = 'block'
     loginForm.style.display = 'none'
     registerForm.style.display = 'block'
+    moviesSection.style.display = 'none' // Ukryj sekcję z filmami
   })
 
   // Pobierz filmy z serwera
@@ -35,19 +38,19 @@ document.addEventListener('DOMContentLoaded', () => {
           const cena = parseFloat(movie.cena)
 
           movieCard.innerHTML = `
-                        <div class="card">
-                            <img src="img/${
-                              movie.zdj
-                            }.jpeg" class="card-img-top" alt="${movie.nazwa}">
-                            <div class="card-body">
-                                <h5 class="card-title">${movie.nazwa}</h5>
-                                <p class="card-text">${movie.opis}</p>
-                                <p class="card-text"><strong>Cena:</strong> ${cena.toFixed(
-                                  2
-                                )} PLN</p>
-                            </div>
-                        </div>
-                    `
+            <div class="card">
+              <img src="../img/${movie.zdj}.jpeg" class="card-img-top" alt="${
+            movie.nazwa
+          }">
+              <div class="card-body">
+                <h5 class="card-title">${movie.nazwa}</h5>
+                <p class="card-text">${movie.opis}</p>
+                <p class="card-text"><strong>Cena:</strong> ${cena.toFixed(
+                  2
+                )} PLN</p>
+              </div>
+            </div>
+          `
           moviesGrid.appendChild(movieCard)
         })
       } else {
