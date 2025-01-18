@@ -15,7 +15,7 @@ if ($conn->connect_error) {
 }
 
 // Pobieranie danych z tabeli produkty
-$sql = "SELECT nazwa, opis, CAST(cena AS DECIMAL(10, 2)) AS cena, zdj FROM produkty WHERE typ = 'stacjonarny'";
+$sql = "SELECT id_produktu, nazwa, opis, CAST(cena AS DECIMAL(10, 2)) AS cena, zdj FROM produkty WHERE typ = 'stacjonarny'";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {
