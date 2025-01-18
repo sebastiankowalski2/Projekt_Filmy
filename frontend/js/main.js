@@ -4,8 +4,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerForm = document.getElementById('register-form')
   const loginLink = document.getElementById('login-link')
   const registerLink = document.getElementById('register-link')
+  const logoutLink = document.getElementById('logout-link')
+  const profileLink = document.getElementById('profile-link')
   const moviesGrid = document.getElementById('movies-grid')
   const moviesSection = document.getElementById('movies')
+  const profileSection = document.getElementById('profile')
+  const rentedMoviesGrid = document.getElementById('rented-movies')
   const reservationModal = new bootstrap.Modal(
     document.getElementById('reservationModal')
   )
@@ -14,6 +18,26 @@ document.addEventListener('DOMContentLoaded', () => {
   const reservationDateInput = document.getElementById('reservation-date')
   const rentalPriceInput = document.getElementById('rental-price')
 
+  // Sprawdź status logowania użytkownika
+  fetch('../backend/php/check_login.php')
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.loggedIn) {
+        loginLink.style.display = 'none'
+        registerLink.style.display = 'none'
+        logoutLink.style.display = 'block'
+        profileLink.style.display = 'block'
+      } else {
+        loginLink.style.display = 'block'
+        registerLink.style.display = 'block'
+        logoutLink.style.display = 'none'
+        profileLink.style.display = 'none'
+      }
+    })
+    .catch((error) => {
+      console.error('Błąd sprawdzania statusu logowania:', error)
+    })
+
   // Pokaż formularz logowania
   loginLink.addEventListener('click', (e) => {
     e.preventDefault()
@@ -21,6 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.style.display = 'block'
     registerForm.style.display = 'none'
     moviesSection.style.display = 'none' // Ukryj sekcję z filmami
+    profileSection.style.display = 'none' // Ukryj sekcję profilu
   })
 
   // Pokaż formularz rejestracji
@@ -30,6 +55,35 @@ document.addEventListener('DOMContentLoaded', () => {
     loginForm.style.display = 'none'
     registerForm.style.display = 'block'
     moviesSection.style.display = 'none' // Ukryj sekcję z filmami
+    profileSection.style.display = 'none' // Ukryj sekcję profilu
+  })
+
+  // Wylogowanie użytkownika
+  logoutLink.addEventListener('click', (e) => {
+    e.preventDefault()
+    fetch('../backend/php/logout.php')
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          alert(data.message)
+          location.reload()
+        } else {
+          alert('Błąd wylogowania: ' + data.message)
+        }
+      })
+      .catch((error) => {
+        console.error('Błąd:', error)
+        alert('Wystąpił błąd podczas wylogowywania.')
+      })
+  })
+
+  // Pokaż profil użytkownika
+  profileLink.addEventListener('click', (e) => {
+    e.preventDefault()
+    authForms.style.display = 'none'
+    moviesSection.style.display = 'none'
+    profileSection.style.display = 'block'
+    loadRentedMovies()
   })
 
   // Pobierz filmy z serwera
@@ -77,6 +131,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             movieTitleInput.value = movieTitle
             movieTitleInput.dataset.id = movieId
+
+            console.log(
+              `Modal otwarty dla filmu: ID=${movieId}, Tytuł=${movieTitle}`
+            )
           })
         })
       } else {
@@ -192,4 +250,36 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Wystąpił błąd podczas wypożyczania filmu.')
       })
   })
+
+  // Funkcja do załadowania aktualnie wypożyczonych filmów
+  function loadRentedMovies() {
+    fetch('../backend/php/get_rented_movies.php')
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.success) {
+          rentedMoviesGrid.innerHTML = ''
+          data.movies.forEach((movie) => {
+            const movieCard = document.createElement('div')
+            movieCard.classList.add('col-lg-4', 'col-md-6', 'mb-4')
+
+            movieCard.innerHTML = `
+            <div class="card movie-card">
+              <img src="../img/${movie.zdj}.jpeg" class="card-img-top" alt="${movie.nazwa}">
+              <div class="card-body">
+                <h5 class="movie-title">${movie.nazwa}</h5>
+                <p class="card-text">${movie.opis}</p>
+                <p class="card-text"><strong>Data zwrotu:</strong> ${movie.data_zwrotu}</p>
+              </div>
+            </div>
+          `
+            rentedMoviesGrid.appendChild(movieCard)
+          })
+        } else {
+          rentedMoviesGrid.innerHTML = `<p>${data.message}</p>`
+        }
+      })
+      .catch((error) => {
+        rentedMoviesGrid.innerHTML = `<p>Błąd podczas ładowania wypożyczonych filmów: ${error.message}</p>`
+      })
+  }
 })
