@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="css/admin.css" />
+    <script src="js/admin.js"></script>
+    <link rel="icon" type="image/png" href="../img/admin.png" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Admin Panel</h1>
+
+      <div id="loginContainer">
+        <form id="loginForm" class="form">
+          <h2>Log In</h2>
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required /><br />
+
+          <label for="password">Password:</label>
+          <input type="password" id="password" name="password" required /><br />
+
+          <button type="submit">Log In</button>
+        </form>
+      </div>
+
+      <div class="tabs">
+        <button id="logoutButton" style="display: none" class="logout-btn">
+          Log Out
+        </button>
+        <button class="tab-button active" data-tab="dashboard">
+          Dashboard
+        </button>
+        <button class="tab-button" data-tab="problemReports">
+          Problem Reports
+        </button>
+
+        <button data-tab="generateReport" id="generateReportButton">
+          Generate Report
+        </button>
+      </div>
+
+      <div id="reportForm" style="display: none; margin-top: 20px">
+        <form id="reportFormElement">
+          <label for="startDate">Start Date:</label>
+          <input type="date" id="startDate" name="startDate" required />
+          <label for="endDate">End Date:</label>
+          <input type="date" id="endDate" name="endDate" required />
+          <button type="submit">Generate</button>
+        </form>
+      </div>
+
+      <div id="dashboard" class="tab-content dashboard"></div>
+
+      <div id="problemReports" class="tab-content" style="display: none">
+        <div id="problemReportsContainer" class="form-rep">
+          <h2>Problem Reports</h2>
+          <ul id="problemReportsList"></ul>
+        </div>
+      </div>
+
+      <div id="editParkingFormContainer" class="form-container">
+        <form id="editParkingForm">
+          <h2>Edit Parking</h2>
+          <input type="hidden" id="editParkingId" name="id" />
+          <label for="editParkingName">Name:</label>
+          <input type="text" id="editParkingName" name="name" required />
+          <br /><br />
+          <label for="editParkingLocation">Location:</label>
+          <input
+            type="text"
+            id="editParkingLocation"
+            name="location"
+            required
+          />
+          <br /><br />
+          <label for="editParkingType">Type:</label>
+          <select id="editParkingType" name="type" required>
+            <option value="zamkniety">Zamknięty</option>
+            <option value="otwarty">Otwarty</option>
+          </select>
+          <br />
+          <button type="submit" class="button-neutral">Save Changes</button>
+          <button
+            type="button"
+            id="closeEditParkingForm"
+            class="button-neutral"
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+
+      <div id="editPricingFormContainer" class="form-container">
+        <form id="editPricingForm">
+          <h2>Edit Pricing</h2>
+          <input type="hidden" id="editPricingId" name="id" />
+          <label for="editHourlyRate">Hourly Rate:</label>
+          <input
+            type="number"
+            id="editHourlyRate"
+            name="hourlyRate"
+            step="1.00"
+            required
+          />
+          <br /><br />
+          <label for="editDailyRate">Daily Rate:</label>
+          <input
+            type="number"
+            id="editDailyRate"
+            name="dailyRate"
+            step="1.00"
+            required
+          />
+          <br /><br />
+          <label for="editMonthlyRate">Monthly Rate:</label>
+          <input
+            type="number"
+            id="editMonthlyRate"
+            name="monthlyRate"
+            step="1.00"
+            required
+          />
+          <br /><br />
+          <button type="submit" class="button-neutral">Save Pricing</button>
+          <button
+            type="button"
+            id="closeEditPricingForm"
+            class="button-neutral"
+          >
+            Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+    <div id="overlay" class="overlay"></div>
+  </body>
+</html>
