@@ -1,372 +1,157 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const loginForm = document.getElementById('loginForm')
-  const loginContainer = document.getElementById('loginContainer')
-  const dashboard = document.getElementById('dashboard')
-  const logoutButton = document.getElementById('logoutButton')
-  const problemReportsList = document.getElementById('problemReportsList')
-  const tabs = document.querySelectorAll('.tab-button')
-  const tabContents = document.querySelectorAll('.tab-content')
+  const adminLoginForm = document.getElementById('admin-login-form')
+  const adminDashboard = document.getElementById('admin-dashboard')
+  const adminName = document.getElementById('admin-name')
+  const moviesContainer = document.getElementById('movies-container')
+  const editFormContainer = document.getElementById('edit-form-container')
+  const editForm = document.getElementById('edit-movie-form')
 
-  // Logowanie
-  loginForm.addEventListener('submit', async (event) => {
-    event.preventDefault()
+  // Dodaj przycisk "Wyloguj"
+  const logoutButton = document.createElement('button')
+  logoutButton.className = 'btn btn-danger mt-3'
+  logoutButton.textContent = 'Wyloguj się'
+  adminDashboard.appendChild(logoutButton)
 
-    const formData = new FormData(loginForm)
-    try {
-      const response = await fetch('../backend/php/admin_backend.php', {
-        method: 'POST',
-        body: formData,
+  // Funkcja sprawdzająca sesję administratora
+  const checkSession = () => {
+    fetch('../backend/php/admin_backend.php')
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.success) {
+          // Administrator zalogowany
+          adminLoginForm.style.display = 'none'
+          adminDashboard.style.display = 'block'
+          adminName.textContent = result.adminName
+          fetchMovies() // Pobierz filmy po potwierdzeniu zalogowania
+        } else {
+          // Administrator niezalogowany
+          adminLoginForm.style.display = 'block'
+          adminDashboard.style.display = 'none'
+          moviesContainer.innerHTML = '' // Wyczyść listę filmów
+        }
       })
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const result = await response.json()
-
-      if (result.success) {
-        sessionStorage.setItem('admin_id', result.admin_id)
-        loginContainer.style.display = 'none'
-        logoutButton.style.display = 'block'
-        loadDashboard(result.admin_id)
-        loadProblemReports(result.admin_id)
-        showTab('dashboard')
-      } else {
-        alert('Login failed: ' + result.message)
-      }
-    } catch (error) {
-      console.error('Error during login:', error)
-      alert('An error occurred during login.')
-    }
-  })
-
-  // Wylogowanie
-  logoutButton.addEventListener('click', async () => {
-    try {
-      const response = await fetch(
-        '../backend/php/admin_backend.php?logout=true'
-      )
-      const result = await response.json()
-
-      if (result.success) {
-        sessionStorage.removeItem('admin_id')
-        loginContainer.style.display = 'flex'
-        logoutButton.style.display = 'none'
-        dashboard.style.display = 'none'
-        problemReportsList.innerHTML = '' // Clear problem reports list
-      } else {
-        alert('Failed to log out: ' + result.message)
-      }
-    } catch (error) {
-      console.error('Error during logout:', error)
-      alert('An error occurred during logout.')
-    }
-  })
-
-  // Sprawdzenie sesji
-  const adminId = sessionStorage.getItem('admin_id')
-  if (adminId) {
-    loginContainer.style.display = 'none'
-    logoutButton.style.display = 'block'
-    loadDashboard(adminId)
-    loadProblemReports(adminId)
-    showTab('dashboard')
+      .catch((error) => console.error('Błąd sprawdzania sesji:', error))
   }
 
-  async function loadDashboard(adminId) {
-    try {
-      const response = await fetch(
-        `../backend/php/admin_backend.php?admin_id=${adminId}`
-      )
-      const result = await response.json()
+  // Obsługa logowania
+  adminLoginForm.addEventListener('submit', (e) => {
+    e.preventDefault()
 
-      if (result.success) {
-        dashboard.style.display = 'grid'
-        dashboard.innerHTML = ''
+    const email = document.getElementById('admin-email').value
+    const password = document.getElementById('admin-password').value
 
-        result.parkings.forEach((parking) => {
-          const parkingDiv = document.createElement('div')
-          parkingDiv.className = 'dashboard-item'
-          parkingDiv.innerHTML = `
-        <h3>${parking.Nazwa}</h3>
-        <p><strong>Location:</strong> ${parking.Lokalizacja}</p>
-        <p><strong>Capacity:</strong> ${parking.Liczba_Miejsc}</p>
-        <p><strong>Available spots:</strong> ${parking.AvailableSpots}</p>
-        <p><strong>Type:</strong> ${parking.Typ}</p>
-        <button class="edit-parking-btn button-neutral" data-id="${
-          parking.ID_Parkingu
-        }" 
-                data-name="${parking.Nazwa}" 
-                data-location="${parking.Lokalizacja}" 
-                data-type="${parking.Typ}">
-          Edit Parking
-        </button>
-        <div class="pricing">
-            <h4>Pricing:</h4>
-            ${parking.cennik
-              .map(
-                (cennik) => `
-                <p><strong>${cennik.Typ_Ceny}:</strong> ${cennik.Cena} PLN</p>
-              `
-              )
-              .join('')}
-            <button
-                class="edit-pricing-btn button-neutral"
-                data-id="${parking.ID_Parkingu}" 
-                data-hourly="${
-                  parking.cennik.find((c) => c.Typ_Ceny === 'Za godzinę')
-                    ?.Cena || 0
-                }" 
-                data-daily="${
-                  parking.cennik.find((c) => c.Typ_Ceny === 'Za dzień')?.Cena ||
-                  0
-                }" 
-                data-monthly="${
-                  parking.cennik.find((c) => c.Typ_Ceny === 'Za miesiąc')
-                    ?.Cena || 0
-                }"
-              >
-                Edit Pricing
-            </button>
+    fetch('../backend/php/admin_backend.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.success) {
+          // Zalogowano pomyślnie
+          checkSession()
+        } else {
+          alert('Błąd logowania: ' + result.message)
+        }
+      })
+      .catch((error) => console.error('Błąd:', error))
+  })
 
-        </div>
-    `
-          dashboard.appendChild(parkingDiv)
-        })
+  // Obsługa wylogowania
+  logoutButton.addEventListener('click', () => {
+    fetch('../backend/php/admin_backend.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'logout' }),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.success) {
+          // Wylogowano - przejdź do formularza logowania
+          checkSession()
+        } else {
+          alert('Błąd podczas wylogowania: ' + result.message)
+        }
+      })
+      .catch((error) => console.error('Błąd wylogowania:', error))
+  })
 
-        // Obsługa przycisków edycji parkingu
-        document.querySelectorAll('.edit-parking-btn').forEach((btn) => {
-          btn.addEventListener('click', (e) => {
-            const { id, name, location, type } = e.target.dataset
+  // Pobierz listę filmów
+  const fetchMovies = () => {
+    fetch('../backend/php/get_movies.php')
+      .then((response) => response.json())
+      .then((movies) => {
+        moviesContainer.innerHTML = '' // Wyczyść listę przed załadowaniem
 
-            // Wypełnij pola formularza
-            document.getElementById('editParkingId').value = id
-            document.getElementById('editParkingName').value = name
-            document.getElementById('editParkingLocation').value = location
-            document.getElementById('editParkingType').value = type
-
-            // Pokaż formularz i nakładkę
-            document
-              .getElementById('editParkingFormContainer')
-              .classList.add('active')
-            document.getElementById('overlay').classList.add('active')
-          })
-        })
-
-        // Obsługa przycisków edycji cennika
-        document.querySelectorAll('.edit-pricing-btn').forEach((btn) => {
-          btn.addEventListener('click', (e) => {
-            const { id, hourly, daily, monthly } = e.target.dataset
-
-            // Wypełnij pola formularza
-            document.getElementById('editPricingId').value = id
-            document.getElementById('editHourlyRate').value =
-              parseFloat(hourly) || 0 // Domyślna wartość 0
-            document.getElementById('editDailyRate').value =
-              parseFloat(daily) || 0
-            document.getElementById('editMonthlyRate').value =
-              parseFloat(monthly) || 0
-
-            // Pokaż formularz i nakładkę
-            document
-              .getElementById('editPricingFormContainer')
-              .classList.add('active')
-            document.getElementById('overlay').classList.add('active')
-          })
-        })
-      } else {
-        alert('Failed to load dashboard: ' + result.message)
-      }
-    } catch (error) {
-      console.error('Error loading dashboard:', error)
-      alert('An error occurred while loading the dashboard.')
-    }
-  }
-
-  async function loadProblemReports(adminId) {
-    try {
-      const response = await fetch(
-        `../backend/php/get_problem_reports.php?admin_id=${adminId}`
-      )
-      const result = await response.json()
-
-      if (result.success) {
-        problemReportsList.innerHTML = ''
-
-        result.problems.forEach((problem) => {
-          const li = document.createElement('li')
-          li.innerHTML = `
-            <p><strong>Parking Name:</strong> ${problem.Nazwa_Parkingu}</p>
-            <p><strong>User Email:</strong> ${problem.Email}</p>
-            <p><strong>Description:</strong> ${problem.Opis_Problemu}</p>
-            <p class="report-date"><strong>Date:</strong> ${problem.Data_Zgloszenia}</p>
-            <button class="complete-report-btn button-neutral" data-id="${problem.ID_Zgloszenia}">Close Report</button>
+        movies.forEach((movie) => {
+          const movieElement = document.createElement('div')
+          movieElement.className = 'card mb-3'
+          movieElement.innerHTML = `
+            <div class="card-body">
+              <h5 class="card-title">${movie.nazwa}</h5>
+              <p class="card-text">${movie.opis}</p>
+              <p class="card-text"><strong>Cena:</strong> ${movie.cena} zł</p>
+              <button class="btn btn-warning edit-button" data-id="${movie.id_produktu}">Edytuj</button>
+            </div>
           `
-          problemReportsList.appendChild(li)
+
+          moviesContainer.appendChild(movieElement)
         })
 
-        // Obsługa przycisków zakończenia zgłoszenia
-        document.querySelectorAll('.complete-report-btn').forEach((btn) => {
-          btn.addEventListener('click', async (e) => {
-            const reportId = e.target.dataset.id
-            try {
-              const response = await fetch(
-                `../backend/php/complete_report.php?report_id=${reportId}`,
-                { method: 'POST' }
-              )
-              const result = await response.json()
-              if (result.success) {
-                alert('Report closed successfully!')
-                loadProblemReports(adminId) // Odśwież listę zgłoszeń
-              } else {
-                alert('Closing the report failed: ' + result.message)
-              }
-            } catch (error) {
-              console.error('Error completing report:', error)
-              alert('Closing the report failed.')
-            }
+        // Dodaj obsługę kliknięcia przycisku "Edytuj"
+        document.querySelectorAll('.edit-button').forEach((button) => {
+          button.addEventListener('click', () => {
+            const movieId = button.dataset.id
+            openEditForm(movieId)
           })
         })
-      } else {
-        alert('Failed to load problem reports: ' + result.message)
-      }
-    } catch (error) {
-      console.error('Error loading problem reports:', error)
-      alert('An error occurred while loading the problem reports.')
-    }
+      })
+      .catch((error) => console.error('Błąd podczas pobierania filmów:', error))
   }
 
-  // Obsługa zapisywania edytowanego parkingu
-  document
-    .getElementById('editParkingForm')
-    .addEventListener('submit', async (e) => {
-      e.preventDefault()
+  // Otwórz formularz edycji
+  const openEditForm = (movieId) => {
+    fetch(`../backend/php/get_movie_by_id.php?id=${movieId}`)
+      .then((response) => response.json())
+      .then((movie) => {
+        editForm['id_produktu'].value = movie.id_produktu
+        editForm['nazwa'].value = movie.nazwa
+        editForm['opis'].value = movie.opis
+        editForm['cena'].value = movie.cena
+        editForm['ilosc_w_magazynie'].value = movie.ilosc_w_magazynie
 
-      const formData = new FormData(e.target)
-      const response = await fetch('../backend/php/admin_backend.php', {
-        method: 'POST',
-        body: formData,
+        editFormContainer.style.display = 'block'
       })
-
-      const result = await response.json()
-      if (result.success) {
-        alert('Parking updated successfully!')
-        document.getElementById('editParkingFormContainer').style.display =
-          'none'
-        //loadDashboard(sessionStorage.getItem('admin_id'))
-        location.reload()
-      } else {
-        alert('Failed to update parking: ' + result.message)
-      }
-    })
-
-  // Obsługa zapisywania edytowanego cennika
-  document
-    .getElementById('editPricingForm')
-    .addEventListener('submit', async (e) => {
-      e.preventDefault()
-
-      const formData = new FormData(e.target)
-      const response = await fetch('../backend/php/admin_backend.php', {
-        method: 'POST',
-        body: formData,
-      })
-
-      const result = await response.json()
-      if (result.success) {
-        alert('Pricing updated successfully!')
-        document.getElementById('editPricingFormContainer').style.display =
-          'none'
-        //loadDashboard(sessionStorage.getItem('admin_id'))
-        location.reload()
-      } else {
-        alert('Failed to update pricing: ' + result.message)
-      }
-    })
-
-  // Obsługa anulowania edycji
-  document
-    .getElementById('closeEditParkingForm')
-    .addEventListener('click', () => {
-      document
-        .getElementById('editParkingFormContainer')
-        .classList.remove('active')
-      document.getElementById('overlay').classList.remove('active')
-    })
-
-  document
-    .getElementById('closeEditPricingForm')
-    .addEventListener('click', () => {
-      document
-        .getElementById('editPricingFormContainer')
-        .classList.remove('active')
-      document.getElementById('overlay').classList.remove('active')
-    })
-
-  // Zamknij formularze po kliknięciu w nakładkę
-  document.getElementById('overlay').addEventListener('click', () => {
-    document.querySelectorAll('.form-container').forEach((form) => {
-      form.classList.remove('active')
-    })
-    document.getElementById('overlay').classList.remove('active')
-  })
-
-  // Obsługa zakładek (tabs)
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      tabs.forEach((t) => t.classList.remove('active'))
-      tab.classList.add('active')
-      showTab(tab.dataset.tab)
-    })
-  })
-
-  function showTab(tabName) {
-    tabContents.forEach((content) => {
-      content.style.display = content.id === tabName ? 'grid' : 'none'
-    })
+      .catch((error) =>
+        console.error('Błąd podczas pobierania szczegółów filmu:', error)
+      )
   }
 
-  document
-    .getElementById('generateReportButton')
-    .addEventListener('click', function () {
-      document.getElementById('reportForm').style.display = 'block'
+  // Obsługa zapisania zmian
+  editForm.addEventListener('submit', (e) => {
+    e.preventDefault()
+
+    const formData = new FormData(editForm)
+
+    fetch('../backend/php/update_movie.php', {
+      method: 'POST',
+      body: formData,
     })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.success) {
+          alert('Film został zaktualizowany.')
+          editFormContainer.style.display = 'none'
+          fetchMovies() // Odśwież listę filmów
+        } else {
+          alert('Błąd podczas aktualizacji filmu: ' + result.message)
+        }
+      })
+      .catch((error) =>
+        console.error('Błąd podczas aktualizacji filmu:', error)
+      )
+  })
 
-  document
-    .getElementById('reportFormElement')
-    .addEventListener('submit', async function (event) {
-      event.preventDefault()
-      const startDate = document.getElementById('startDate').value
-      const endDate = document.getElementById('endDate').value
-
-      if (new Date(startDate) > new Date(endDate)) {
-        alert('Start Date cannot be later than End Date.')
-        return
-      }
-
-      try {
-        const response = await fetch('../backend/php/generate_report.php', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ startDate, endDate }),
-        })
-
-        if (!response.ok) throw new Error('Error generating report')
-
-        const blob = await response.blob()
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.style.display = 'none'
-        a.href = url
-        a.download = `report_${startDate}_to_${endDate}.csv`
-        document.body.appendChild(a)
-        a.click()
-        window.URL.revokeObjectURL(url)
-        alert('Report generated successfully!')
-      } catch (error) {
-        alert('Failed to generate report: ' + error.message)
-      }
-    })
+  // Inicjalizacja - sprawdzanie sesji przy starcie
+  checkSession()
 })
