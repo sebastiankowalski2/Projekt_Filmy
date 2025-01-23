@@ -17,10 +17,10 @@ if (!isset($data['movieId'], $data['date'])) {
 $userId = $_SESSION['userId'];
 $movieId = $data['movieId'];
 $date = $data['date'];
-$currentDate = date('Y-m-d'); // Bieżąca data
+$currentDateTime = date('Y-m-d H:i:s'); // Bieżąca data i godzina
 
 // Sprawdzenie, czy data zwrotu nie jest wcześniejsza niż bieżąca data
-if ($date < $currentDate) {
+if ($date < $currentDateTime) {
     echo json_encode(["success" => false, "message" => "Data zwrotu nie może być wcześniejsza niż bieżąca data."]);
     exit();
 }
@@ -38,14 +38,14 @@ if ($conn->connect_error) {
     exit();
 }
 
-// Dodanie wypożyczenia do bazy danych
-$stmt = $conn->prepare("INSERT INTO wypozyczenia (id_uzytkownika, id_produktu, data_przewidywanego_zwrotu) VALUES (?, ?, ?)");
-$stmt->bind_param("iis", $userId, $movieId, $date);
+// Dodanie wypożyczenia do bazy danych z ustawieniem statusu na "oczekuje"
+$stmt = $conn->prepare("INSERT INTO wypozyczenia (id_uzytkownika, id_produktu, data_wypozyczenia, data_przewidywanego_zwrotu, status) VALUES (?, ?, ?, ?, 'oczekuje')");
+$stmt->bind_param("iiss", $userId, $movieId, $currentDateTime, $date);
 
 if ($stmt->execute()) {
-    echo json_encode(["success" => true, "message" => "Wypożyczenie zakończone sukcesem."]);
+    echo json_encode(["success" => true, "message" => "Status ustawiony na 'oczekuje'."]);
 } else {
-    echo json_encode(["success" => false, "message" => "Błąd podczas wypożyczania filmu."]);
+    echo json_encode(["success" => false, "message" => "Błąd podczas ustawiania statusu."]);
 }
 
 $stmt->close();

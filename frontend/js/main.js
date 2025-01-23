@@ -241,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result.success) {
           alert(`Wypożyczono film: ${movieTitleInput.value} na dzień: ${date}`)
           reservationModal.hide()
-          window.location.href = 'payment.html'
+          window.location.href = `payment.html?movieId=${movieId}`
         } else {
           alert('Błąd wypożyczenia: ' + result.message)
         }

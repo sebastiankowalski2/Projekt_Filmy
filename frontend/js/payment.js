@@ -25,8 +25,30 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
-    // Przekierowanie do strony potwierdzenia płatności
-    alert('Płatność zakończona sukcesem!')
-    window.location.href = 'confirmation.html'
+    // Pobierz movieId z URL
+    const urlParams = new URLSearchParams(window.location.search)
+    const movieId = urlParams.get('movieId')
+
+    // Zmień status na "wypożyczony"
+    fetch('../backend/php/confirm_payment.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ movieId }),
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.success) {
+          alert(
+            'Płatność zakończona sukcesem! Status zmieniony na "wypożyczony".'
+          )
+          window.location.href = 'confirmation.html'
+        } else {
+          alert('Błąd zmiany statusu: ' + result.message)
+        }
+      })
+      .catch((error) => {
+        console.error('Błąd:', error)
+        alert('Wystąpił błąd podczas zmiany statusu.')
+      })
   })
 })
