@@ -1,6 +1,30 @@
 document.addEventListener('DOMContentLoaded', () => {
   const paymentForm = document.getElementById('payment-form')
 
+  // Pobierz movieId z URL
+  const urlParams = new URLSearchParams(window.location.search)
+  const movieId = urlParams.get('movieId')
+
+  // Pobierz kwotę płatności (przykładowa kwota, można dostosować do rzeczywistej kwoty)
+  const amount = 100.0
+
+  // Utwórz rekord płatności o statusie "oczekuje"
+  fetch('../backend/php/create_payment.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ movieId, amount }),
+  })
+    .then((response) => response.json())
+    .then((result) => {
+      if (!result.success) {
+        alert('Błąd tworzenia płatności: ' + result.message)
+      }
+    })
+    .catch((error) => {
+      console.error('Błąd:', error)
+      alert('Wystąpił błąd podczas tworzenia płatności.')
+    })
+
   paymentForm.addEventListener('submit', (e) => {
     e.preventDefault()
 
@@ -24,10 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
       alert('Nieprawidłowy CVV')
       return
     }
-
-    // Pobierz movieId z URL
-    const urlParams = new URLSearchParams(window.location.search)
-    const movieId = urlParams.get('movieId')
 
     // Zmień status na "wypożyczony"
     fetch('../backend/php/confirm_payment.php', {
