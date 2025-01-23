@@ -17,6 +17,13 @@ if (!isset($data['movieId'], $data['date'])) {
 $userId = $_SESSION['userId'];
 $movieId = $data['movieId'];
 $date = $data['date'];
+$currentDate = date('Y-m-d'); // Bieżąca data
+
+// Sprawdzenie, czy data zwrotu nie jest wcześniejsza niż bieżąca data
+if ($date < $currentDate) {
+    echo json_encode(["success" => false, "message" => "Data zwrotu nie może być wcześniejsza niż bieżąca data."]);
+    exit();
+}
 
 // Połączenie z bazą danych
 $servername = "localhost";
