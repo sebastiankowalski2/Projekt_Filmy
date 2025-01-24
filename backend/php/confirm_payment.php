@@ -9,7 +9,7 @@ if (!isset($_SESSION['userId'])) {
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!isset($data['movieId'], $data['amount'])) {
+if (!isset($data['movieId'], $data['amount'], $data['paymentMethod'])) {
     echo json_encode(["success" => false, "message" => "Brak wymaganych danych."]);
     exit();
 }
@@ -17,6 +17,7 @@ if (!isset($data['movieId'], $data['amount'])) {
 $userId = $_SESSION['userId'];
 $movieId = $data['movieId'];
 $amount = $data['amount'];
+$paymentMethod = $data['paymentMethod'];
 
 // Połączenie z bazą danych
 $servername = "localhost";
@@ -37,8 +38,8 @@ $conn->begin_transaction();
 try {
 
     // Zaktualizowanie statusu płatności na "opłacono"
-    $stmt = $conn->prepare("UPDATE platnosci SET status = 'opłacono', kwota = ? WHERE id_uzytkownika = ? AND id_wypozyczenia = (SELECT id_wypozyczenia FROM wypozyczenia WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje')");
-    $stmt->bind_param("diii", $amount, $userId, $userId, $movieId);
+    $stmt = $conn->prepare("UPDATE platnosci SET status = 'opłacono', kwota = ?, metoda_platnosci = ? WHERE id_uzytkownika = ? AND id_wypozyczenia = (SELECT id_wypozyczenia FROM wypozyczenia WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje')");
+    $stmt->bind_param("dsiii", $amount, $paymentMethod, $userId, $userId, $movieId);
     $stmt->execute();
     $stmt->close();
 

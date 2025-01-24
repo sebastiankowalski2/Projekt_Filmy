@@ -25,34 +25,42 @@
           />
         </div>
         <div class="mb-3">
-          <label for="card-number" class="form-label">Numer karty</label>
-          <input
-            type="text"
+          <label for="payment-method" class="form-label"
+            >Metoda płatności</label
+          >
+          <select
             class="form-control"
-            id="card-number"
-            name="card-number"
+            id="payment-method"
+            name="payment-method"
             required
-          />
+          >
+            <option value="karta">Karta</option>
+            <option value="gotówka">Gotówka</option>
+          </select>
         </div>
-        <div class="mb-3">
-          <label for="expiry-date" class="form-label">Data ważności</label>
-          <input
-            type="text"
-            class="form-control"
-            id="expiry-date"
-            name="expiry-date"
-            required
-          />
-        </div>
-        <div class="mb-3">
-          <label for="cvv" class="form-label">CVV</label>
-          <input
-            type="text"
-            class="form-control"
-            id="cvv"
-            name="cvv"
-            required
-          />
+        <div id="card-details" style="display: none">
+          <div class="mb-3">
+            <label for="card-number" class="form-label">Numer karty</label>
+            <input
+              type="text"
+              class="form-control"
+              id="card-number"
+              name="card-number"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="expiry-date" class="form-label">Data ważności</label>
+            <input
+              type="text"
+              class="form-control"
+              id="expiry-date"
+              name="expiry-date"
+            />
+          </div>
+          <div class="mb-3">
+            <label for="cvv" class="form-label">CVV</label>
+            <input type="text" class="form-control" id="cvv" name="cvv" />
+          </div>
         </div>
         <button type="submit" class="btn btn-primary">Zapłać</button>
       </form>

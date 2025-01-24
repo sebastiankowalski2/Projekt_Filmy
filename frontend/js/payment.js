@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
   const paymentForm = document.getElementById('payment-form')
+  const paymentMethodSelect = document.getElementById('payment-method')
+  const cardDetails = document.getElementById('card-details')
 
   // Pobierz movieId i amount z URL
   const urlParams = new URLSearchParams(window.location.search)
@@ -8,6 +10,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Ustaw kwotę płatności w polu formularza
   document.getElementById('amount').value = `${amount.toFixed(2)} PLN`
+
+  // Pokaż/ukryj pola dla karty w zależności od wybranej metody płatności
+  paymentMethodSelect.addEventListener('change', () => {
+    if (paymentMethodSelect.value === 'karta') {
+      cardDetails.style.display = 'block'
+    } else {
+      cardDetails.style.display = 'none'
+    }
+  })
 
   // Utwórz rekord płatności o statusie "oczekuje"
   fetch('../backend/php/create_payment.php', {
@@ -29,32 +40,36 @@ document.addEventListener('DOMContentLoaded', () => {
   paymentForm.addEventListener('submit', (e) => {
     e.preventDefault()
 
-    // Pobierz dane z formularza
-    const cardNumber = document.getElementById('card-number').value
-    const expiryDate = document.getElementById('expiry-date').value
-    const cvv = document.getElementById('cvv').value
+    const paymentMethod = paymentMethodSelect.value
 
-    // Przykładowa walidacja danych karty
-    if (cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
-      alert('Nieprawidłowy numer karty')
-      return
-    }
+    if (paymentMethod === 'karta') {
+      // Pobierz dane z formularza
+      const cardNumber = document.getElementById('card-number').value
+      const expiryDate = document.getElementById('expiry-date').value
+      const cvv = document.getElementById('cvv').value
 
-    if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
-      alert('Nieprawidłowa data ważności')
-      return
-    }
+      // Przykładowa walidacja danych karty
+      if (cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
+        alert('Nieprawidłowy numer karty')
+        return
+      }
 
-    if (cvv.length !== 3 || !/^\d+$/.test(cvv)) {
-      alert('Nieprawidłowy CVV')
-      return
+      if (!/^\d{2}\/\d{2}$/.test(expiryDate)) {
+        alert('Nieprawidłowa data ważności')
+        return
+      }
+
+      if (cvv.length !== 3 || !/^\d+$/.test(cvv)) {
+        alert('Nieprawidłowy CVV')
+        return
+      }
     }
 
     // Zmień status na "wypożyczony" i "opłacono"
     fetch('../backend/php/confirm_payment.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ movieId, amount }),
+      body: JSON.stringify({ movieId, amount, paymentMethod }),
     })
       .then((response) => response.json())
       .then((result) => {
