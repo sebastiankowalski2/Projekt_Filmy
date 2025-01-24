@@ -87,13 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const movieElement = document.createElement('div')
           movieElement.className = 'card mb-3'
           movieElement.innerHTML = `
-            <div class="card-body">
-              <h5 class="card-title">${movie.nazwa}</h5>
-              <p class="card-text">${movie.opis}</p>
-              <p class="card-text"><strong>Cena:</strong> ${movie.cena} zł</p>
-              <button class="btn btn-warning edit-button" data-id="${movie.id_produktu}">Edytuj</button>
-            </div>
-          `
+    <div class="card-body">
+      <h5 class="card-title">${movie.nazwa}</h5>
+      <p class="card-text">${movie.opis}</p>
+      <p class="card-text"><strong>Koszt wypożyczenia:</strong> ${movie.koszt_wypozyczenia} zł</p>
+      <p class="card-text"><strong>Opłata za opóźnienie:</strong> ${movie.oplata_za_opoznienie} zł</p>
+      <button class="btn btn-warning edit-button" data-id="${movie.id_produktu}">Edytuj</button>
+    </div>
+  `
 
           moviesContainer.appendChild(movieElement)
         })
@@ -117,8 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
         editForm['id_produktu'].value = movie.id_produktu
         editForm['nazwa'].value = movie.nazwa
         editForm['opis'].value = movie.opis
-        editForm['cena'].value = movie.cena
         editForm['ilosc_w_magazynie'].value = movie.ilosc_w_magazynie
+        editForm['koszt_wypozyczenia'].value = movie.koszt_wypozyczenia
+        editForm['oplata_za_opoznienie'].value = movie.oplata_za_opoznienie
 
         editFormContainer.style.display = 'block'
       })
