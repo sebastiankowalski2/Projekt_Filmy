@@ -36,24 +36,30 @@ if ($conn->connect_error) {
 $conn->begin_transaction();
 
 try {
+    if ($paymentMethod === 'karta') {
+        // Zaktualizowanie statusu płatności na "opłacono"
+        $stmt = $conn->prepare("UPDATE platnosci SET status = 'opłacono', kwota = ?, metoda_platnosci = ? WHERE id_uzytkownika = ? AND id_wypozyczenia = (SELECT id_wypozyczenia FROM wypozyczenia WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje')");
+        $stmt->bind_param("dsiii", $amount, $paymentMethod, $userId, $userId, $movieId);
+        $stmt->execute();
+        $stmt->close();
 
-    // Zaktualizowanie statusu płatności na "opłacono"
-    $stmt = $conn->prepare("UPDATE platnosci SET status = 'opłacono', kwota = ?, metoda_platnosci = ? WHERE id_uzytkownika = ? AND id_wypozyczenia = (SELECT id_wypozyczenia FROM wypozyczenia WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje')");
-    $stmt->bind_param("dsiii", $amount, $paymentMethod, $userId, $userId, $movieId);
-    $stmt->execute();
-    $stmt->close();
-
-    // Zaktualizowanie statusu wypożyczenia na "wypożyczony"
-    $stmt = $conn->prepare("UPDATE wypozyczenia SET status = 'wypożyczony' WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje'");
-    $stmt->bind_param("ii", $userId, $movieId);
-    $stmt->execute();
-    $stmt->close();
-
+        // Zaktualizowanie statusu wypożyczenia na "wypożyczony"
+        $stmt = $conn->prepare("UPDATE wypozyczenia SET status = 'wypożyczony' WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje'");
+        $stmt->bind_param("ii", $userId, $movieId);
+        $stmt->execute();
+        $stmt->close();
+    } else {
+        // Zaktualizowanie statusu wypożyczenia na "oczekuje" (jeśli gotówka)
+        $stmt = $conn->prepare("UPDATE wypozyczenia SET status = 'oczekuje' WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje'");
+        $stmt->bind_param("ii", $userId, $movieId);
+        $stmt->execute();
+        $stmt->close();
+    }
 
     // Zatwierdź transakcję
     $conn->commit();
 
-    echo json_encode(["success" => true, "message" => "Status wypożyczenia zmieniony na 'wypożyczony' i status płatności zmieniony na 'opłacono'."]);
+    echo json_encode(["success" => true, "message" => "Status wypożyczenia zmieniony na '" . ($paymentMethod === 'karta' ? "wypożyczony i status płatności zmieniony na 'opłacono'." : "oczekuje'.")]);
 } catch (Exception $e) {
     // Wycofaj transakcję w przypadku błędu
     $conn->rollback();
