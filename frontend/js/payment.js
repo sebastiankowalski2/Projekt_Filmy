@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return
     }
 
-    // Zmień status na "wypożyczony"
+    // Zmień status na "wypożyczony" i "opłacono"
     fetch('../backend/php/confirm_payment.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       .then((result) => {
         if (result.success) {
           alert(
-            'Płatność zakończona sukcesem! Status zmieniony na "wypożyczony".'
+            'Płatność zakończona sukcesem! Status zmieniony na "wypożyczony" i "opłacono".'
           )
           window.location.href = `confirmation.html?movieId=${movieId}&amount=${amount}`
         } else {
