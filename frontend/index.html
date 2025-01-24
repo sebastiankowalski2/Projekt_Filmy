@@ -177,6 +177,17 @@
             role="tabpanel"
             aria-labelledby="rented-movies-tab"
           >
+            <div class="mb-3">
+              <label for="status-filter" class="form-label"
+                >Filtruj według statusu</label
+              >
+              <select class="form-control" id="status-filter">
+                <option value="all">Wszystkie</option>
+                <option value="wypożyczony">Wypożyczony</option>
+                <option value="zwrócony">Zwrócony</option>
+                <option value="opóźniony">Opóźniony</option>
+              </select>
+            </div>
             <div id="rented-movies-grid" class="row"></div>
           </div>
           <div

@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const moviesSection = document.getElementById('movies')
   const profileSection = document.getElementById('profile')
   const rentedMoviesGrid = document.getElementById('rented-movies-grid')
+  const statusFilter = document.getElementById('status-filter')
   const reservationModal = new bootstrap.Modal(
     document.getElementById('reservationModal')
   )
@@ -254,28 +255,31 @@ document.addEventListener('DOMContentLoaded', () => {
   })
 
   // Funkcja do załadowania aktualnie wypożyczonych filmów
-  function loadRentedMovies() {
+  function loadRentedMovies(status = 'all') {
     fetch('../backend/php/get_rented_movies.php')
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
           rentedMoviesGrid.innerHTML = ''
-          data.movies.forEach((movie) => {
-            const movieCard = document.createElement('div')
-            movieCard.classList.add('col-lg-4', 'col-md-6', 'mb-4')
+          data.movies
+            .filter((movie) => status === 'all' || movie.status === status)
+            .forEach((movie) => {
+              const movieCard = document.createElement('div')
+              movieCard.classList.add('col-lg-4', 'col-md-6', 'mb-4')
 
-            movieCard.innerHTML = `
-            <div class="card movie-card">
-              <img src="../img/${movie.zdj}.jpeg" class="card-img-top" alt="${movie.nazwa}">
-              <div class="card-body">
-                <h5 class="movie-title">${movie.nazwa}</h5>
-                <p class="card-text">${movie.opis}</p>
-                <p class="card-text"><strong>Data zwrotu:</strong> ${movie.data_zwrotu}</p>
+              movieCard.innerHTML = `
+              <div class="card movie-card">
+                <img src="../img/${movie.zdj}.jpeg" class="card-img-top" alt="${movie.nazwa}">
+                <div class="card-body">
+                  <h5 class="movie-title">${movie.nazwa}</h5>
+                  <p class="card-text">${movie.opis}</p>
+                  <p class="card-text"><strong>Status:</strong> ${movie.status}</p>
+                  <p class="card-text"><strong>Data zwrotu:</strong> ${movie.data_zwrotu}</p>
+                </div>
               </div>
-            </div>
-          `
-            rentedMoviesGrid.appendChild(movieCard)
-          })
+            `
+              rentedMoviesGrid.appendChild(movieCard)
+            })
         } else {
           rentedMoviesGrid.innerHTML = `<p>${data.message}</p>`
         }
@@ -284,4 +288,9 @@ document.addEventListener('DOMContentLoaded', () => {
         rentedMoviesGrid.innerHTML = `<p>Błąd podczas ładowania wypożyczonych filmów: ${error.message}</p>`
       })
   }
+
+  // Obsługa zmiany filtra statusu
+  statusFilter.addEventListener('change', (e) => {
+    loadRentedMovies(e.target.value)
+  })
 })

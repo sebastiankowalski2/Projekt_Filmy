@@ -24,7 +24,7 @@ if ($conn->connect_error) {
 
 // Pobierz wypożyczone filmy użytkownika
 $stmt = $conn->prepare("
-    SELECT p.nazwa, p.opis, p.zdj, w.data_przewidywanego_zwrotu AS data_zwrotu
+    SELECT p.nazwa, p.opis, p.zdj, w.status, w.data_przewidywanego_zwrotu AS data_zwrotu
     FROM wypozyczenia w
     JOIN produkty p ON w.id_produktu = p.id_produktu
     WHERE w.id_uzytkownika = ? AND w.data_przewidywanego_zwrotu > NOW()
