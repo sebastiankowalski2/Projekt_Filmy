@@ -230,6 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault()
     const movieId = movieTitleInput.dataset.id
     const date = reservationDateInput.value
+    const amount = parseFloat(rentalPriceInput.value)
 
     fetch('../backend/php/rent_movie.php', {
       method: 'POST',
@@ -241,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result.success) {
           alert(`Wypożyczono film: ${movieTitleInput.value} na dzień: ${date}`)
           reservationModal.hide()
-          window.location.href = `payment.html?movieId=${movieId}`
+          window.location.href = `payment.html?movieId=${movieId}&amount=${amount}`
         } else {
           alert('Błąd wypożyczenia: ' + result.message)
         }

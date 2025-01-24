@@ -1,12 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
   const paymentForm = document.getElementById('payment-form')
 
-  // Pobierz movieId z URL
+  // Pobierz movieId i amount z URL
   const urlParams = new URLSearchParams(window.location.search)
   const movieId = urlParams.get('movieId')
+  const amount = parseFloat(urlParams.get('amount'))
 
-  // Pobierz kwotę płatności (przykładowa kwota, można dostosować do rzeczywistej kwoty)
-  const amount = 100.0
+  // Ustaw kwotę płatności w polu formularza
+  document.getElementById('amount').value = `${amount.toFixed(2)} PLN`
 
   // Utwórz rekord płatności o statusie "oczekuje"
   fetch('../backend/php/create_payment.php', {
@@ -53,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetch('../backend/php/confirm_payment.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ movieId }),
+      body: JSON.stringify({ movieId, amount }),
     })
       .then((response) => response.json())
       .then((result) => {
@@ -61,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
           alert(
             'Płatność zakończona sukcesem! Status zmieniony na "wypożyczony".'
           )
-          window.location.href = 'confirmation.html'
+          window.location.href = `confirmation.html?movieId=${movieId}&amount=${amount}`
         } else {
           alert('Błąd zmiany statusu: ' + result.message)
         }
