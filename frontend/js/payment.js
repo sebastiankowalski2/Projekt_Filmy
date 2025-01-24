@@ -63,28 +63,50 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Nieprawidłowy CVV')
         return
       }
-    }
 
-    // Zmień status na "wypożyczony" i "opłacono"
-    fetch('../backend/php/confirm_payment.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ movieId, amount, paymentMethod }),
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        if (result.success) {
-          alert(
-            'Płatność zakończona sukcesem! Status zmieniony na "wypożyczony" i "opłacono".'
-          )
-          window.location.href = `confirmation.html?movieId=${movieId}&amount=${amount}`
-        } else {
-          alert('Błąd zmiany statusu: ' + result.message)
-        }
+      // Zmień status na "wypożyczony" i "opłacono"
+      fetch('../backend/php/confirm_payment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ movieId, amount, paymentMethod }),
       })
-      .catch((error) => {
-        console.error('Błąd:', error)
-        alert('Wystąpił błąd podczas zmiany statusu.')
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.success) {
+            alert(
+              'Płatność zakończona sukcesem! Status zmieniony na "wypożyczony" i "opłacono".'
+            )
+            window.location.href = `confirmation.html?movieId=${movieId}&amount=${amount}`
+          } else {
+            alert('Błąd zmiany statusu: ' + result.message)
+          }
+        })
+        .catch((error) => {
+          console.error('Błąd:', error)
+          alert('Wystąpił błąd podczas zmiany statusu.')
+        })
+    } else {
+      // Zmień status na "oczekuje" (jeśli gotówka)
+      fetch('../backend/php/confirm_payment.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ movieId, amount, paymentMethod }),
       })
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.success) {
+            alert(
+              'Płatność zakończona sukcesem! Status zmieniony na "oczekuje".'
+            )
+            window.location.href = `confirmation.html?movieId=${movieId}&amount=${amount}`
+          } else {
+            alert('Błąd zmiany statusu: ' + result.message)
+          }
+        })
+        .catch((error) => {
+          console.error('Błąd:', error)
+          alert('Wystąpił błąd podczas zmiany statusu.')
+        })
+    }
   })
 })
