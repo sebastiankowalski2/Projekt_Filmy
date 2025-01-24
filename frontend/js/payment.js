@@ -20,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   })
 
+  // Domyślnie pokaż pola dla karty
+  cardDetails.style.display = 'block'
+
   // Utwórz rekord płatności o statusie "oczekuje"
   fetch('../backend/php/create_payment.php', {
     method: 'POST',
