@@ -10,25 +10,46 @@ try {
     $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    $data = [
+    // Pobierz dane z żądania POST
+    $dataProdukty = [
         'id_produktu' => $_POST['id_produktu'],
         'nazwa' => $_POST['nazwa'],
         'opis' => $_POST['opis'],
-        'cena' => $_POST['cena'],
         'ilosc_w_magazynie' => $_POST['ilosc_w_magazynie'],
     ];
 
-    $query = "UPDATE produkty SET 
-              nazwa = :nazwa, 
-              opis = :opis, 
-              cena = :cena, 
-              ilosc_w_magazynie = :ilosc_w_magazynie 
-              WHERE id_produktu = :id_produktu";
+    $dataCennik = [
+        'id_produktu' => $_POST['id_produktu'],
+        'koszt_wypozyczenia' => $_POST['koszt_wypozyczenia'],
+        'oplata_za_opoznienie' => $_POST['oplata_za_opoznienie'],
+    ];
 
-    $stmt = $pdo->prepare($query);
-    $result = $stmt->execute($data);
+    // Rozpocznij transakcję
+    $pdo->beginTransaction();
 
-    echo json_encode(['success' => $result]);
+    // Aktualizacja tabeli produkty
+    $queryProdukty = "UPDATE produkty SET 
+                      nazwa = :nazwa, 
+                      opis = :opis, 
+                      ilosc_w_magazynie = :ilosc_w_magazynie 
+                      WHERE id_produktu = :id_produktu";
+    $stmtProdukty = $pdo->prepare($queryProdukty);
+    $stmtProdukty->execute($dataProdukty);
+
+    // Aktualizacja tabeli cennik
+    $queryCennik = "UPDATE cennik SET 
+                    koszt_wypozyczenia = :koszt_wypozyczenia, 
+                    oplata_za_opoznienie = :oplata_za_opoznienie 
+                    WHERE id_produktu = :id_produktu";
+    $stmtCennik = $pdo->prepare($queryCennik);
+    $stmtCennik->execute($dataCennik);
+
+    // Zatwierdź transakcję
+    $pdo->commit();
+
+    echo json_encode(['success' => true]);
 } catch (PDOException $e) {
-    echo json_encode(['success' => false, 'message' => 'Błąd połączenia z bazą danych.']);
+    // Wycofaj transakcję w przypadku błędu
+    $pdo->rollBack();
+    echo json_encode(['success' => false, 'message' => 'Błąd podczas aktualizacji danych.', 'error' => $e->getMessage()]);
 }

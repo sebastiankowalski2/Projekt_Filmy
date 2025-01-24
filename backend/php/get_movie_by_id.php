@@ -11,7 +11,11 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
     $id = $_GET['id'];
-    $query = "SELECT * FROM produkty WHERE id_produktu = :id";
+    $query = "SELECT p.id_produktu, p.nazwa, p.opis, p.ilosc_w_magazynie, 
+                     c.koszt_wypozyczenia, c.oplata_za_opoznienie 
+              FROM produkty p
+              LEFT JOIN cennik c ON p.id_produktu = c.id_produktu
+              WHERE p.id_produktu = :id";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':id', $id, PDO::PARAM_INT);
     $stmt->execute();
