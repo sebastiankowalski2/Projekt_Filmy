@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const moviesGrid = document.getElementById('movies-grid')
   const moviesSection = document.getElementById('movies')
   const profileSection = document.getElementById('profile')
-  const rentedMoviesGrid = document.getElementById('rented-movies')
+  const rentedMoviesGrid = document.getElementById('rented-movies-grid')
   const reservationModal = new bootstrap.Modal(
     document.getElementById('reservationModal')
   )

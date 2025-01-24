@@ -140,7 +140,54 @@
       </div>
       <div id="profile" class="mt-5" style="display: none">
         <h2>Profil Użytkownika</h2>
-        <div id="rented-movies" class="row"></div>
+        <ul class="nav nav-tabs" id="profile-tabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link active"
+              id="rented-movies-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#rented-movies"
+              type="button"
+              role="tab"
+              aria-controls="rented-movies"
+              aria-selected="true"
+            >
+              Wypożyczone Filmy
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button
+              class="nav-link"
+              id="payment-history-tab"
+              data-bs-toggle="tab"
+              data-bs-target="#payment-history"
+              type="button"
+              role="tab"
+              aria-controls="payment-history"
+              aria-selected="false"
+            >
+              Historia Płatności
+            </button>
+          </li>
+        </ul>
+        <div class="tab-content" id="profile-tabs-content">
+          <div
+            class="tab-pane fade show active"
+            id="rented-movies"
+            role="tabpanel"
+            aria-labelledby="rented-movies-tab"
+          >
+            <div id="rented-movies-grid" class="row"></div>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="payment-history"
+            role="tabpanel"
+            aria-labelledby="payment-history-tab"
+          >
+            <div id="payment-history-grid" class="row"></div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -207,5 +254,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/payment_history.js"></script>
   </body>
 </html>
