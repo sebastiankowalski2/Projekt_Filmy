@@ -2,7 +2,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const adminLoginForm = document.getElementById('admin-login-form')
   const adminDashboard = document.getElementById('admin-dashboard')
   const adminName = document.getElementById('admin-name')
+  const adminSecCon = document.getElementById('admin-sections-content')
+  const adminsections = document.getElementById('admin-sections')
   const moviesContainer = document.getElementById('movies-container')
+  const rentalsContainer = document.getElementById('rentals-container')
   const editFormContainer = document.getElementById('edit-form-container')
   const editForm = document.getElementById('edit-movie-form')
   const addMovieButton = document.getElementById('add-movie-button')
@@ -13,10 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const addMovieForm = document.getElementById('add-movie-form')
 
   // Dodaj przycisk "Wyloguj"
-  const logoutButton = document.createElement('button')
-  logoutButton.className = 'btn btn-danger mt-3'
-  logoutButton.textContent = 'Wyloguj się'
-  adminDashboard.appendChild(logoutButton)
+  const logoutButton = document.getElementById('logout-button')
 
   // Funkcja sprawdzająca sesję administratora
   const checkSession = () => {
@@ -27,13 +27,20 @@ document.addEventListener('DOMContentLoaded', () => {
           // Administrator zalogowany
           adminLoginForm.style.display = 'none'
           adminDashboard.style.display = 'block'
+          addMovieButton.style.display = 'block'
+          adminsections.style.display = 'block'
+          adminSecCon.style.display = 'block'
           adminName.textContent = result.adminName
           fetchMovies() // Pobierz filmy po potwierdzeniu zalogowania
+          fetchRentals() // Pobierz wypożyczenia
         } else {
           // Administrator niezalogowany
           adminLoginForm.style.display = 'block'
           adminDashboard.style.display = 'none'
           moviesContainer.innerHTML = '' // Wyczyść listę filmów
+          addMovieButton.style.display = 'none'
+          adminSecCon.style.display = 'none'
+          adminsections.style.display = 'none'
         }
       })
       .catch((error) => console.error('Błąd sprawdzania sesji:', error))
@@ -114,6 +121,118 @@ document.addEventListener('DOMContentLoaded', () => {
         })
       })
       .catch((error) => console.error('Błąd podczas pobierania filmów:', error))
+  }
+
+  // Pobierz wypożyczenia
+  // Pobierz wypożyczenia
+  const fetchRentals = () => {
+    fetch('../backend/php/get_rentals.php')
+      .then((response) => response.json())
+      .then((rentals) => {
+        rentalsContainer.innerHTML = ''
+
+        rentals.forEach((rental) => {
+          const rentalElement = document.createElement('div')
+          rentalElement.className = 'card mb-3'
+
+          // Podstawowa zawartość wypożyczenia
+          rentalElement.innerHTML = `
+          <div class="card-body">
+            <p><strong>Imię:</strong> ${rental.user_first_name}</p>
+            <p><strong>Nazwisko:</strong> ${rental.user_last_name}</p>
+            <p><strong>Film:</strong> ${rental.movie_name}</p>
+            <p><strong>Status wypożyczenia:</strong> ${rental.rental_status}</p>
+            <p><strong>Metoda płatności:</strong> ${
+              rental.payment_method ?? 'Brak informacji'
+            }</p>
+            <p><strong>Status płatności:</strong> ${
+              rental.payment_status ?? 'Brak informacji'
+            }</p>
+            <p><strong>Data wypożyczenia:</strong> ${new Date(
+              rental.rental_date
+            ).toLocaleDateString()}</p>
+            <p><strong>Przewidywana data zwrotu:</strong> ${new Date(
+              rental.expected_return_date
+            ).toLocaleDateString()}</p>
+          </div>
+        `
+
+          // Dodanie przycisku "Zapłacono na miejscu"
+          if (
+            rental.payment_method === 'gotówka' &&
+            rental.payment_status === 'gotówka'
+          ) {
+            const payOnSiteButton = document.createElement('button')
+            payOnSiteButton.className = 'btn btn-success'
+            payOnSiteButton.textContent = 'Zapłacono na miejscu'
+            payOnSiteButton.onclick = () => {
+              fetch('../backend/php/update_payment.php', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  rental_id: rental.rental_id,
+                }),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    alert('Płatność została zaktualizowana.')
+                    fetchRentals() // Odśwież dane
+                  } else {
+                    alert('Błąd podczas aktualizacji płatności.')
+                  }
+                })
+                .catch((error) =>
+                  console.error('Błąd podczas aktualizacji płatności:', error)
+                )
+            }
+            rentalElement
+              .querySelector('.card-body')
+              .appendChild(payOnSiteButton)
+          }
+
+          // Dodanie przycisku "Zwróć"
+          if (rental.rental_status === 'wypożyczony') {
+            const returnButton = document.createElement('button')
+            returnButton.className = 'btn btn-warning'
+            returnButton.textContent = 'Zwróć'
+            returnButton.onclick = () => {
+              fetch('../backend/php/update_rental_status.php', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  rental_id: rental.rental_id,
+                }),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    alert('Status wypożyczenia został zaktualizowany.')
+                    fetchRentals() // Odśwież dane
+                  } else {
+                    alert('Błąd podczas aktualizacji statusu wypożyczenia.')
+                  }
+                })
+                .catch((error) =>
+                  console.error(
+                    'Błąd podczas aktualizacji statusu wypożyczenia:',
+                    error
+                  )
+                )
+            }
+            rentalElement.querySelector('.card-body').appendChild(returnButton)
+          }
+
+          rentalsContainer.appendChild(rentalElement)
+        })
+      })
+      .catch((error) =>
+        console.error('Błąd podczas pobierania wypożyczeń:', error)
+      )
   }
 
   // Otwórz formularz edycji
