@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const moviesContainer = document.getElementById('movies-container')
   const editFormContainer = document.getElementById('edit-form-container')
   const editForm = document.getElementById('edit-movie-form')
+  const addMovieButton = document.getElementById('add-movie-button')
+  const addMovieFormContainer = document.getElementById(
+    'addmovie-form-container'
+  )
+  const closeAddMovieModal = document.getElementById('close-addmovie-modal')
+  const addMovieForm = document.getElementById('add-movie-form')
 
   // Dodaj przycisk "Wyloguj"
   const logoutButton = document.createElement('button')
@@ -163,6 +169,39 @@ document.addEventListener('DOMContentLoaded', () => {
       .catch((error) =>
         console.error('Błąd podczas aktualizacji filmu:', error)
       )
+  })
+
+  // Pokaż modal
+  addMovieButton.addEventListener('click', () => {
+    addMovieFormContainer.style.display = 'block'
+  })
+
+  // Zamknij modal
+  closeAddMovieModal.addEventListener('click', () => {
+    addMovieFormContainer.style.display = 'none'
+  })
+
+  // Obsługa dodawania filmu
+  addMovieForm.addEventListener('submit', (e) => {
+    e.preventDefault()
+
+    const formData = new FormData(addMovieForm)
+
+    fetch('../backend/php/add_movie.php', {
+      method: 'POST',
+      body: formData,
+    })
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.success) {
+          alert('Film został dodany.')
+          addMovieFormContainer.style.display = 'none'
+          fetchMovies() // Odśwież listę filmów
+        } else {
+          alert('Błąd podczas dodawania filmu: ' + result.message)
+        }
+      })
+      .catch((error) => console.error('Błąd podczas dodawania filmu:', error))
   })
 
   // Inicjalizacja - sprawdzanie sesji przy starcie

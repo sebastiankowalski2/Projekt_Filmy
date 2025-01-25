@@ -50,6 +50,123 @@
         <h1>Witaj, <span id="admin-name"></span>!</h1>
       </div>
 
+      <div class="container mt-5">
+        <button class="btn btn-success mb-3" id="add-movie-button">
+          Dodaj nowy film
+        </button>
+      </div>
+
+      <div
+        id="addmovie-form-container"
+        class="modal"
+        tabindex="-1"
+        style="display: none"
+      >
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Dodaj Nowy Film</h5>
+              <button
+                type="button"
+                class="btn-close"
+                aria-label="Close"
+                id="close-addmovie-modal"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <form id="add-movie-form" enctype="multipart/form-data">
+                <div class="mb-3">
+                  <label for="nazwa" class="form-label">Nazwa</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="nazwa"
+                    required
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label for="opis" class="form-label">Opis</label>
+                  <textarea
+                    class="form-control"
+                    name="opis"
+                    rows="3"
+                    required
+                  ></textarea>
+                </div>
+
+                <div class="mb-3">
+                  <label for="koszt_wypozyczenia" class="form-label"
+                    >Koszt Wypożyczenia</label
+                  >
+                  <input
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                    name="koszt_wypozyczenia"
+                    required
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label for="oplata_za_opoznienie" class="form-label"
+                    >Opłata za Opóźnienie</label
+                  >
+                  <input
+                    type="number"
+                    step="0.01"
+                    class="form-control"
+                    name="oplata_za_opoznienie"
+                    required
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label for="typ" class="form-label">Typ</label>
+                  <select class="form-select" name="typ" required>
+                    <option value="stacjonarny">Stacjonarny</option>
+                    <option value="online">Online</option>
+                  </select>
+                </div>
+
+                <div class="mb-3">
+                  <label for="url_ogladania" class="form-label"
+                    >URL Oglądania</label
+                  >
+                  <input type="url" class="form-control" name="url_ogladania" />
+                </div>
+
+                <div class="mb-3">
+                  <label for="ilosc_w_magazynie" class="form-label"
+                    >Ilość w magazynie</label
+                  >
+                  <input
+                    type="number"
+                    class="form-control"
+                    name="ilosc_w_magazynie"
+                    required
+                  />
+                </div>
+
+                <div class="mb-3">
+                  <label for="zdj" class="form-label">Zdjęcie</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    name="zdj"
+                    accept="image/jpeg"
+                  />
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                  Dodaj Film
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="movies-container" class="container mt-5"></div>
 
       <!-- Modal dla formularza edycji -->
