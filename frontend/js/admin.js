@@ -122,7 +122,11 @@ document.addEventListener('DOMContentLoaded', () => {
         editForm['koszt_wypozyczenia'].value = movie.koszt_wypozyczenia
         editForm['oplata_za_opoznienie'].value = movie.oplata_za_opoznienie
 
-        editFormContainer.style.display = 'block'
+        // Otwórz modal
+        const editModal = new bootstrap.Modal(
+          document.getElementById('edit-form-container')
+        )
+        editModal.show()
       })
       .catch((error) =>
         console.error('Błąd podczas pobierania szczegółów filmu:', error)
@@ -143,8 +147,15 @@ document.addEventListener('DOMContentLoaded', () => {
       .then((result) => {
         if (result.success) {
           alert('Film został zaktualizowany.')
-          editFormContainer.style.display = 'none'
-          fetchMovies() // Odśwież listę filmów
+
+          // Zamknij modal
+          const editModal = bootstrap.Modal.getInstance(
+            document.getElementById('edit-form-container')
+          )
+          editModal.hide()
+
+          // Odśwież listę filmów
+          fetchMovies()
         } else {
           alert('Błąd podczas aktualizacji filmu: ' + result.message)
         }
