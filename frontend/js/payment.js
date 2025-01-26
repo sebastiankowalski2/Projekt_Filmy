@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return
       }
 
-      // Zmień status na "wypożyczony" i "opłacono"
+      // Zmień status na "odbiór" i "opłacono"
       fetch('../backend/php/confirm_payment.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then((result) => {
           if (result.success) {
             alert(
-              'Płatność zakończona sukcesem! Status zmieniony na "wypożyczony" i "opłacono".'
+              'Płatność zakończona sukcesem! Status zmieniony na "odbiór" i "opłacono".'
             )
             window.location.href = `confirmation.html?movieId=${movieId}&amount=${amount}`
           } else {
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
           alert('Wystąpił błąd podczas zmiany statusu.')
         })
     } else {
-      // Zmień status na "oczekuje" (jeśli gotówka)
+      // Zmień status na "odbiór" (jeśli gotówka)
       fetch('../backend/php/confirm_payment.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -98,9 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then((response) => response.json())
         .then((result) => {
           if (result.success) {
-            alert(
-              'Płatność zakończona sukcesem! Status zmieniony na "oczekuje".'
-            )
+            alert('Płatność zakończona sukcesem! Status zmieniony na "odbiór".')
             window.location.href = `confirmation.html?movieId=${movieId}&amount=${amount}`
           } else {
             alert('Błąd zmiany statusu: ' + result.message)

@@ -43,20 +43,20 @@ try {
         $stmt->execute();
         $stmt->close();
 
-        // Zaktualizowanie statusu wypożyczenia na "wypożyczony"
-        $stmt = $conn->prepare("UPDATE wypozyczenia SET status = 'wypożyczony' WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje' LIMIT 1");
+        // Zaktualizowanie statusu wypożyczenia na "odbiór"
+        $stmt = $conn->prepare("UPDATE wypozyczenia SET status = 'odbiór' WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje' LIMIT 1");
         $stmt->bind_param("ii", $userId, $movieId);
         $stmt->execute();
         $stmt->close();
     } else {
-        // Zaktualizowanie metody płatności na "gotówka" i statusu na "gotówka"
+        // Zaktualizowanie metody płatności na "gotówka" i statusu na "odbiór"
         $stmt = $conn->prepare("UPDATE platnosci SET metoda_platnosci = ?, status = 'gotówka' WHERE id_uzytkownika = ? AND id_wypozyczenia = (SELECT id_wypozyczenia FROM wypozyczenia WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje' LIMIT 1)");
         $stmt->bind_param("siii", $paymentMethod, $userId, $userId, $movieId);
         $stmt->execute();
         $stmt->close();
 
-        // Zaktualizowanie statusu wypożyczenia na "gotówka"
-        $stmt = $conn->prepare("UPDATE wypozyczenia SET status = 'gotówka' WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje' LIMIT 1");
+        // Zaktualizowanie statusu wypożyczenia na "odbiór"
+        $stmt = $conn->prepare("UPDATE wypozyczenia SET status = 'odbiór' WHERE id_uzytkownika = ? AND id_produktu = ? AND status = 'oczekuje' LIMIT 1");
         $stmt->bind_param("ii", $userId, $movieId);
         $stmt->execute();
         $stmt->close();
@@ -65,7 +65,7 @@ try {
     // Zatwierdź transakcję
     $conn->commit();
 
-    echo json_encode(["success" => true, "message" => "Status wypożyczenia zmieniony na '" . ($paymentMethod === 'karta' ? "wypożyczony i status płatności zmieniony na 'opłacono'." : "gotówka'.")]);
+    echo json_encode(["success" => true, "message" => "Status wypożyczenia zmieniony na 'odbiór' i status płatności zmieniony na 'opłacono'."]);
 } catch (Exception $e) {
     // Wycofaj transakcję w przypadku błędu
     $conn->rollback();
