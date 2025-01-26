@@ -21,7 +21,7 @@ if (isset($data['rental_id'])) {
     $rental_id = $data['rental_id'];
 
     // Aktualizacja statusu wypożyczenia
-    $query = "UPDATE wypozyczenia SET status = 'zwrócony' WHERE id_wypozyczenia = :rental_id";
+    $query = "UPDATE wypozyczenia SET status = 'zwrócony', data_zwrotu = NOW() WHERE id_wypozyczenia = :rental_id";
     $stmt = $pdo->prepare($query);
     $stmt->bindParam(':rental_id', $rental_id, PDO::PARAM_INT);
 

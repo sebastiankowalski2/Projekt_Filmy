@@ -193,6 +193,40 @@ document.addEventListener('DOMContentLoaded', () => {
               .appendChild(payOnSiteButton)
           }
 
+          // Dodanie przycisku "odebrano"
+          if (
+            rental.rental_status === 'odbiór' &&
+            rental.payment_method === 'karta'
+          ) {
+            const odbiorButton = document.createElement('button')
+            odbiorButton.className = 'btn btn-success'
+            odbiorButton.textContent = 'Odebrano'
+            odbiorButton.onclick = () => {
+              fetch('../backend/php/update_payment.php', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  rental_id: rental.rental_id,
+                }),
+              })
+                .then((response) => response.json())
+                .then((data) => {
+                  if (data.success) {
+                    alert('Płatność została zaktualizowana.')
+                    fetchRentals() // Odśwież dane
+                  } else {
+                    alert('Błąd podczas aktualizacji płatności.')
+                  }
+                })
+                .catch((error) =>
+                  console.error('Błąd podczas aktualizacji płatności:', error)
+                )
+            }
+            rentalElement.querySelector('.card-body').appendChild(odbiorButton)
+          }
+
           // Dodanie przycisku "Zwróć"
           if (rental.rental_status === 'wypożyczony') {
             const returnButton = document.createElement('button')
