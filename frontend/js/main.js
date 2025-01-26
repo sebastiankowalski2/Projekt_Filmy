@@ -233,24 +233,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const date = reservationDateInput.value
     const amount = parseFloat(rentalPriceInput.value)
 
-    fetch('../backend/php/rent_movie.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ movieId, date }),
-    })
+    // Sprawdź dostępność produktu
+    fetch(`../backend/php/check_availability.php?movieId=${movieId}`)
       .then((response) => response.json())
-      .then((result) => {
-        if (result.success) {
-          alert(`Wypożyczono film: ${movieTitleInput.value} na dzień: ${date}`)
-          reservationModal.hide()
-          window.location.href = `payment.html?movieId=${movieId}&amount=${amount}`
+      .then((data) => {
+        if (data.success) {
+          // Produkt dostępny, kontynuuj wypożyczenie
+          fetch('../backend/php/rent_movie.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ movieId, date }),
+          })
+            .then((response) => response.json())
+            .then((result) => {
+              if (result.success) {
+                alert(
+                  `Wypożyczono film: ${movieTitleInput.value} na dzień: ${date}`
+                )
+                reservationModal.hide()
+                window.location.href = `payment.html?movieId=${movieId}&amount=${amount}`
+              } else {
+                alert('Błąd wypożyczenia: ' + result.message)
+              }
+            })
+            .catch((error) => {
+              console.error('Błąd:', error)
+              alert('Wystąpił błąd podczas wypożyczania filmu.')
+            })
         } else {
-          alert('Błąd wypożyczenia: ' + result.message)
+          // Produkt niedostępny, wyświetl alert i zatrzymaj dalsze przetwarzanie
+          alert(data.message)
+          console.log(data.message)
+          return
         }
       })
       .catch((error) => {
         console.error('Błąd:', error)
-        alert('Wystąpił błąd podczas wypożyczania filmu.')
+        alert('Wystąpił błąd podczas sprawdzania dostępności produktu.')
       })
   })
 
